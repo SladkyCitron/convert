@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>convert.to.it</title>
+</head>
+<body>
+
+  <input id="file-input" type="file">
+
+  <div id="file-area" onclick="selectFile()">
+    <h2>Click to add your file</h2>
+    <p>or drag and drop it here</p>
+  </div>
+
+  <div id="format-containers">
+
+    <div id="from-container" class="format-container">
+      <h2>Convert from:</h2>
+      <input type="text" id="search-from" class="search" placeholder="Search">
+      <div id="from-list" class="format-list">
+
+      </div>
+    </div>
+
+    <div id="to-container" class="format-container">
+      <h2>Convert to:</h2>
+      <input type="text" id="search-to" class="search" placeholder="Search">
+      <div id="to-list" class="format-list">
+
+      </div>
+    </div>
+
+  </div>
+
+  <button id="convert-button" class="disabled" onclick="convertSelection()">Convert</button>
+
+  <script type="module" src="main.js"></script>
+
+</body>
+</html>
