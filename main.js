@@ -150,6 +150,9 @@ Promise.all(initPromises).then(() => {
 
 async function attemptConvertPath (inputFile, path) {
 
+  popupBox.innerHTML = `<h2>Finding conversion route...</h2>
+    <p>Trying ${path.map(c => c.format.format).join(" -> ")}</p>`;
+
   const file = {
     bytes: new Uint8Array(inputFile.bytes),
     name: inputFile.name
@@ -182,9 +185,6 @@ async function buildConvertPath (file, target, queue) {
   while (queue.length > 0) {
     const path = queue.shift();
     if (path.length > 5) continue;
-
-    popupBox.innerHTML = `<h2>Finding conversion route...</h2>
-      <p>Trying ${path.map(c => c.format.format).join(" -> ")} -> ${target.format.format}</p>`;
 
     const previous = path[path.length - 1];
 
