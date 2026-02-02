@@ -114,6 +114,7 @@ class meydaHandler implements FormatHandler {
     const outputIsImage = (outputFormat.internal === "image");
 
     const bufferSize = 2048;
+    const hopSize = bufferSize / 2;
 
     if (inputIsImage === outputIsImage) {
       throw "Invalid input/output format.";
@@ -146,7 +147,13 @@ class meydaHandler implements FormatHandler {
 
         const sampleRate = this.#audioContext.sampleRate;
 
-        const audioData = new Float32Array(imageWidth * bufferSize);
+        const audioData = new Float32Array(imageWidth * hopSize + bufferSize);
+        const window = new Float32Array(bufferSize);
+
+        // Generate Hanning window
+        for (let i = 0; i < bufferSize; i++) {
+          window[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / bufferSize));
+        }
 
         // Precompute sine and cosine waves for each frequency
         const sineWaves = new Float32Array(imageHeight * bufferSize);
@@ -162,6 +169,8 @@ class meydaHandler implements FormatHandler {
         }
 
         for (let x = 0; x < imageWidth; x ++) {
+          const frameData = new Float32Array(bufferSize);
+
           for (let y = 0; y < imageHeight; y ++) {
             const pixelIndex = (x + y * imageWidth) * 4;
 
@@ -172,12 +181,17 @@ class meydaHandler implements FormatHandler {
             const phase = (pixelBuffer[pixelIndex + 2] / 255) * (2 * Math.PI) - Math.PI;
 
             for (let s = 0; s < bufferSize; s ++) {
-              const timeIndex = x * bufferSize + s;
-              audioData[timeIndex] += amplitude * (
+              frameData[s] += amplitude * (
                 cosineWaves[y * bufferSize + s] * Math.cos(phase)
                 - sineWaves[y * bufferSize + s] * Math.sin(phase)
               );
             }
+          }
+
+          // Apply window and overlap-add
+          const outputOffset = x * hopSize;
+          for (let s = 0; s < bufferSize; s ++) {
+            audioData[outputOffset + s] += frameData[s] * window[s];
           }
         }
 
@@ -187,7 +201,7 @@ class meydaHandler implements FormatHandler {
           const magnitude = Math.abs(audioData[i]);
           if (magnitude > max) max = magnitude;
         }
-        for (let i = 0; i < imageWidth * bufferSize; i ++) {
+        for (let i = 0; i < audioData.length; i ++) {
           audioData[i] /= max;
         }
 
@@ -208,16 +222,20 @@ class meydaHandler implements FormatHandler {
         Meyda.bufferSize = bufferSize;
         Meyda.sampleRate = audioData.sampleRate;
         const samples = audioData.getChannelData(0);
-        const imageWidth = Math.floor(samples.length / Meyda.bufferSize);
+        const imageWidth = Math.max(1, Math.ceil((samples.length - bufferSize) / hopSize) + 1);
         const imageHeight = Meyda.bufferSize / 2;
 
         this.#canvas.width = imageWidth;
         this.#canvas.height = imageHeight;
 
+        const frameBuffer = new Float32Array(bufferSize);
+
         for (let i = 0; i < imageWidth; i ++) {
 
-          const frame = samples.slice(i * Meyda.bufferSize, (i + 1) * Meyda.bufferSize);
-          const spectrum = Meyda.extract("complexSpectrum", frame);
+          const start = i * hopSize;
+          frameBuffer.fill(0);
+          frameBuffer.set(samples.subarray(start, Math.min(start + bufferSize, samples.length)));
+          const spectrum = Meyda.extract("complexSpectrum", frameBuffer);
           if (!spectrum || !("real" in spectrum) || !("imag" in spectrum)) {
             throw "Failed to extract audio features!";
           }
