@@ -192,6 +192,9 @@ class FFmpegHandler implements FormatHandler {
     if (inputFormat.format === "png" || inputFormat.mime === "image/jpeg") {
       command.push("-r", "1");
     }
+    if (inputFormat.mime === "video/mp4") {
+      command.push("-pix_fmt", "yyv420p");
+    }
     if (args) command.push(...args);
     command.push("output");
 
