@@ -7,3 +7,6 @@
 [submodule "src/handlers/sppd"]
 	path = src/handlers/sppd
 	url = https://github.com/p2r3/sppd
+[submodule "src/handlers/qoa-fu"]
+	path = src/handlers/qoa-fu
+	url = https://github.com/pfusik/qoa-fu
