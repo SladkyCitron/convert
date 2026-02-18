@@ -1,6 +1,6 @@
 import type { FileData, FileFormat, FormatHandler } from "../FormatHandler.ts";
 
-import { QOAEncoder, QOADecoder, QOABase } from "./qoa-fu/transpiled/QOA.ts";
+import { QOAEncoder, QOADecoder, QOABase } from "qoa-fu";
 import { WaveFile } from "wavefile";
 
 class uint8ArrayQOADecoder extends QOADecoder {
