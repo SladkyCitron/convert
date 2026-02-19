@@ -37,7 +37,7 @@ class textToGoHandler implements FormatHandler {
     for (const inputFile of inputFiles) {
       console.log(inputFiles, inputFormat, outputFormat);
 
-      const text = new TextDecoder().decode(inputFile.bytes).replace(/\r?\n/, "\n");
+      const text = new TextDecoder().decode(inputFile.bytes).replace(/\r?\n/, "\n").replace("`", "` + \"`\" + `");
       let out = "";
 
       out += "package main\n";
