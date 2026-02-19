@@ -37,25 +37,15 @@ class textToGoHandler implements FormatHandler {
     for (const inputFile of inputFiles) {
       console.log(inputFiles, inputFormat, outputFormat);
 
-      const text = new TextDecoder().decode(inputFile.bytes);
+      const text = new TextDecoder().decode(inputFile.bytes).replace(/\r?\n/, "\n");
       let out = "";
-
-      const lines = text.split(/\r?\n/).slice(0, -1);
 
       out += "package main\n";
       out += "\n";
       out += "import \"fmt\"\n";
       out += "\n";
       out += "func main() {\n";
-
-      for (const line of lines) {
-        if (line === "") {
-          out += "\tfmt.Println()\n";
-        } else {
-          out += `\tfmt.Println(\`${line}\`)\n`;
-        }
-      }
-
+      out += `\tfmt.Println(\`${text}\`)\n`
       out += "}\n";
 
       const name = inputFile.name.split(".")[0]+".go";
