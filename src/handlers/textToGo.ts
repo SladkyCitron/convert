@@ -13,7 +13,7 @@ class textToGoHandler implements FormatHandler {
       from: false,
       to: true,
       internal: "go",
-      category: "text",
+      category: "code",
       lossless: true,
     }
   ];
